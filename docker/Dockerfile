@@ -25,7 +25,10 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
  && rm -f /tmp/ros2-apt-source.deb \
  && rm -rf /var/lib/apt/lists/*
 
+# build-essential / cmake: the Isaac Sim image has no compiler or make (colcon + ament_cmake need them)
 RUN apt-get update && apt-get install -y --no-install-recommends \
+      build-essential \
+      cmake \
       ros-jazzy-ros-base \
       ros-jazzy-rosbridge-server \
       ros-jazzy-robot-state-publisher \
