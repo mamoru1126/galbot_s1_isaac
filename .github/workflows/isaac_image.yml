@@ -1,0 +1,39 @@
+name: Isaac Sim image
+
+# Builds docker/Dockerfile (Isaac Sim 6.x container + ROS 2 Jazzy). Needs a lot of disk, so
+# the runner's preinstalled toolchains are removed first. Runs only on demand / when the
+# Docker files change.
+on:
+  workflow_dispatch:
+    inputs:
+      isaac_tag:
+        description: Isaac Sim container tag
+        default: '6.2.0'
+  push:
+    paths:
+      - 'docker/Dockerfile'
+      - 'docker/entrypoint.sh'
+      - '.github/workflows/isaac_image.yml'
+
+jobs:
+  build:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 90
+    steps:
+      - name: Free disk space
+        run: |
+          df -h /
+          sudo rm -rf /usr/share/dotnet /usr/local/lib/android /opt/ghc /opt/hostedtoolcache /usr/local/share/boost /usr/share/swift
+          sudo docker image prune -af
+          df -h /
+      - uses: actions/checkout@v4
+      - name: Build
+        run: |
+          TAG="${{ github.event.inputs.isaac_tag || '6.2.0' }}"
+          docker build --progress=plain -f docker/Dockerfile \
+            --build-arg "ISAAC_SIM_IMAGE=nvcr.io/nvidia/isaac-sim:$TAG" -t galbot_s1_isaac:ci-isaac . 2>&1 | tee build.log
+          exit "${PIPESTATUS[0]}"
+      - name: Inspect (no GPU)
+        run: |
+          df -h /
+          docker run --rm --entrypoint bash galbot_s1_isaac:ci-isaac -c 'source /opt/ros/jazzy/setup.bash; source /ws/install/setup.bash; ros2 pkg prefix galbot_s1_isaac; ls /isaac-sim | head; /isaac-sim/python.sh -c "import sys; print(sys.version)"'
