@@ -1,0 +1,44 @@
+[+] Building 1.2s (10/12)                                                                                docker:default
+ => [internal] load build definition from Dockerfile                                                               0.0s
+ => => transferring dockerfile: 2.47kB                                                                             0.0s
+ => [internal] load metadata for nvcr.io/nvidia/isaac-sim:6.2.0                                                    0.3s
+ => [internal] load .dockerignore                                                                                  0.0s
+ => => transferring context: 2B                                                                                    0.0s
+ => [1/8] FROM nvcr.io/nvidia/isaac-sim:6.2.0@sha256:a025b65a7442d56806a1cc3f5eed081caf736c24b72d62dccf68ef66945d  0.0s
+ => [internal] load build context                                                                                  0.1s
+ => => transferring context: 13.91kB                                                                               0.0s
+ => CACHED [2/8] RUN apt-get update && apt-get install -y --no-install-recommends       ca-certificates curl gnup  0.0s
+ => CACHED [3/8] RUN apt-get update && apt-get install -y --no-install-recommends       ros-jazzy-ros-base         0.0s
+ => CACHED [4/8] WORKDIR /ws                                                                                       0.0s
+ => CACHED [5/8] COPY . /ws/src/galbot_s1_isaac                                                                    0.0s
+ => ERROR [6/8] RUN rm -rf /ws/src/galbot_s1_isaac/docker /ws/src/galbot_s1_isaac/.github /ws/src/galbot_s1_isaac  0.7s
+------
+ > [6/8] RUN rm -rf /ws/src/galbot_s1_isaac/docker /ws/src/galbot_s1_isaac/.github /ws/src/galbot_s1_isaac/docs  && . /opt/ros/jazzy/setup.sh  && colcon build --cmake-args -DCMAKE_BUILD_TYPE=Release  && chown -R 1234:1234 /ws:
+0.482 Starting >>> galbot_s1_control
+0.485 Starting >>> galbot_s1_description
+0.487 Starting >>> galbot_s1_web
+0.513 --- stderr: galbot_s1_control
+0.513 CMake Error: CMake was unable to find a build program corresponding to "Unix Makefiles".  CMAKE_MAKE_PROGRAM is not set.  You probably need to select a different build tool.
+0.513 CMake Error: CMAKE_C_COMPILER not set, after EnableLanguage
+0.513 CMake Error: CMAKE_CXX_COMPILER not set, after EnableLanguage
+0.513 ---
+0.513 Failed   <<< galbot_s1_control [0.03s, exited with code 1]
+0.513 Aborted  <<< galbot_s1_web [0.03s]
+0.514 Aborted  <<< galbot_s1_description [0.03s]
+0.538
+0.538 Summary: 0 packages finished [0.10s]
+0.538   1 package failed: galbot_s1_control
+0.538   2 packages aborted: galbot_s1_description galbot_s1_web
+0.538   3 packages had stderr output: galbot_s1_control galbot_s1_description galbot_s1_web
+0.538   1 package not processed
+------
+Dockerfile:46
+--------------------
+  45 |     COPY . /ws/src/galbot_s1_isaac
+  46 | >>> RUN rm -rf /ws/src/galbot_s1_isaac/docker /ws/src/galbot_s1_isaac/.github /ws/src/galbot_s1_isaac/docs \
+  47 | >>>  && . /opt/ros/jazzy/setup.sh \
+  48 | >>>  && colcon build --cmake-args -DCMAKE_BUILD_TYPE=Release \
+  49 | >>>  && chown -R 1234:1234 /ws
+  50 |
+--------------------
+ERROR: failed to solve: process "/bin/sh -c rm -rf /ws/src/galbot_s1_isaac/docker /ws/src/galbot_s1_isaac/.github /ws/src/galbot_s1_isaac/docs  && . /opt/ros/jazzy/setup.sh  && colcon build --cmake-args -DCMAKE_BUILD_TYPE=Release  && chown -R 1234:1234 /ws" did not complete successfully: exit code: 1
