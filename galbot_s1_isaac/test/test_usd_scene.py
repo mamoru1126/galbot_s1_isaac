@@ -4,11 +4,15 @@ import math
 import numpy as np
 import pytest
 
-pxr = pytest.importorskip('pxr')
-from pxr import Gf, Usd, UsdGeom, UsdPhysics  # noqa: E402
+from galbot_isaac import geometry as geo
 
-from galbot_isaac import geometry as geo  # noqa: E402
-from galbot_isaac import usd_scene  # noqa: E402
+try:
+    from pxr import Gf, Usd, UsdGeom, UsdPhysics
+    from galbot_isaac import usd_scene
+except ImportError:      # no module-level skip: it hides the other test files with pytest 7 + launch_testing
+    usd_scene = None
+
+pytestmark = pytest.mark.skipif(usd_scene is None, reason='pxr not installed (pip install usd-core)')
 
 
 @pytest.fixture
