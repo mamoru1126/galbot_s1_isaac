@@ -1,0 +1,38 @@
+<?xml version="1.0"?>
+<?xml-model href="http://download.ros.org/schema/package_format3.xsd" schematypens="http://www.w3.org/2001/XMLSchema"?>
+<package format="3">
+  <name>galbot_s1_isaac</name>
+  <version>0.1.0</version>
+  <description>
+    Galbot S1 table pick-and-place demo in NVIDIA Isaac Sim 6.x with a ROS 2 interface
+    (same topics as galbot_s1_gazebo) and a browser console. Includes a kinematic
+    stand-in backend for machines without Isaac Sim (CI).
+  </description>
+  <maintainer email="mamoru1126@users.noreply.github.com">mamoru1126</maintainer>
+  <license>Apache-2.0</license>
+  <url type="repository">https://github.com/mamoru1126/galbot_s1_isaac</url>
+
+  <buildtool_depend>ament_cmake</buildtool_depend>
+
+  <exec_depend>galbot_s1_description</exec_depend>
+  <exec_depend>galbot_s1_control</exec_depend>
+  <exec_depend>galbot_s1_web</exec_depend>
+  <exec_depend>robot_state_publisher</exec_depend>
+  <exec_depend>xacro</exec_depend>
+  <exec_depend>launch</exec_depend>
+  <exec_depend>launch_ros</exec_depend>
+  <exec_depend>rclpy</exec_depend>
+  <exec_depend>std_msgs</exec_depend>
+  <exec_depend>sensor_msgs</exec_depend>
+  <exec_depend>nav_msgs</exec_depend>
+  <exec_depend>geometry_msgs</exec_depend>
+  <exec_depend>rosgraph_msgs</exec_depend>
+  <exec_depend>builtin_interfaces</exec_depend>
+  <exec_depend>python3-numpy</exec_depend>
+  <exec_depend>python3-yaml</exec_depend>
+  <test_depend>python3-pytest</test_depend>
+
+  <export>
+    <build_type>ament_cmake</build_type>
+  </export>
+</package>

@@ -1,0 +1,60 @@
+name: CI
+
+# GitHub runners have no RTX GPU, so Isaac Sim itself cannot run here. CI checks
+#   * the committed URDFs (xacro -> Isaac URDF) and the unit tests
+#   * the whole ROS 2 stack (commander, base controller, camera relay, rosbridge) end to end
+#     with the kinematic stand-in backend, which uses the same simulation loop (sim_core.py)
+#     and the same topics as the Isaac Sim backend
+#   * the USD authoring of the world with usd-core, and that the Isaac Sim image's Dockerfile
+#     parses (hadolint, informational)
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  ros2-kinematic:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build CI image (ROS 2 Jazzy)
+        run: docker build -f docker/ci/Dockerfile -t galbot_s1_isaac:ci .
+      - name: Unit tests
+        run: docker run --rm galbot_s1_isaac:ci bash /ws/src/galbot_s1_isaac/ci/unit_tests.sh
+      - name: End-to-end (kinematic backend)
+        run: |
+          mkdir -p ci_out
+          docker run --rm --network=host -e ROS_DOMAIN_ID=17 -e GALBOT_BACKEND=kinematic \
+            -v "$PWD/ci_out:/ci_out" galbot_s1_isaac:ci bash /ws/src/galbot_s1_isaac/ci/run_sim_test.sh /ci_out
+      - name: Show logs
+        if: always()
+        run: |
+          sudo chmod -R a+r ci_out || true
+          tail -n 80 ci_out/launch.log || true
+          cat ci_out/diagnostics.log || true
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: ci-kinematic
+          path: ci_out
+
+  isaac-static:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: USD scene authoring with usd-core (pxr)
+        run: |
+          pip install usd-core numpy pyyaml pytest
+          python -m pytest -q -p no:cacheprovider galbot_s1_isaac/test -rs
+      - name: Byte-compile the Isaac Sim app
+        run: python3 -m compileall -q galbot_s1_isaac/isaac
+      - name: Shell scripts
+        run: |
+          for f in scripts/*.sh ci/*.sh docker/entrypoint.sh; do bash -n "$f"; done
+      - name: hadolint (informational)
+        continue-on-error: true
+        run: docker run --rm -i hadolint/hadolint < docker/Dockerfile

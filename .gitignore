@@ -1,0 +1,7 @@
+__pycache__/
+*.pyc
+selftest/
+ci_out/
+build/
+install/
+log/

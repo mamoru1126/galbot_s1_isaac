@@ -1,0 +1,32 @@
+<?xml version="1.0"?>
+<!--
+  Camera frames of Galbot S1 (not part of the upstream URDF).
+  * head camera : centre of the lens on the head (head_link2), looking forward
+  * wrist cameras: on the camera module of each wrist, looking at the fingers
+  Each camera has a body frame (x forward) and an optical frame (z forward).
+-->
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro">
+  <xacro:macro name="galbot_s1_camera_frames" params="name parent xyz rpy">
+    <link name="${name}_link"/>
+    <joint name="${name}_joint" type="fixed">
+      <origin xyz="${xyz}" rpy="${rpy}"/>
+      <parent link="${parent}"/>
+      <child link="${name}_link"/>
+    </joint>
+    <link name="${name}_optical_frame"/>
+    <joint name="${name}_optical_joint" type="fixed">
+      <origin xyz="0 0 0" rpy="${-pi/2} 0 ${-pi/2}"/>
+      <parent link="${name}_link"/>
+      <child link="${name}_optical_frame"/>
+    </joint>
+  </xacro:macro>
+
+  <xacro:macro name="galbot_s1_sensors">
+    <xacro:galbot_s1_camera_frames name="head_camera" parent="head_end_effector_mount_link"
+                                   xyz="0.16 0 0.09" rpy="0 0 0"/>
+    <xacro:galbot_s1_camera_frames name="right_wrist_camera" parent="right_arm_camera_link"
+                                   xyz="-0.165 -0.063 0.032" rpy="0 -0.2061 2.8104"/>
+    <xacro:galbot_s1_camera_frames name="left_wrist_camera" parent="left_arm_camera_link"
+                                   xyz="-0.165 0.063 0.032" rpy="0 -0.2061 -2.8104"/>
+  </xacro:macro>
+</robot>

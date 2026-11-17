@@ -1,0 +1,158 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#0f1216">
+  <title>Galbot S1 Sim Console</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand"><span class="mark"></span>Galbot S1 <small>Isaac Sim Console</small></div>
+    <div class="conn" id="conn" data-state="connecting"><span class="dot"></span><span id="connText">接続中…</span></div>
+    <div class="badge" id="taskBadge" data-state="idle">待機中</div>
+    <button class="estop" id="estop" title="すべての動作を停止">停止</button>
+  </header>
+
+  <main class="layout">
+      <div class="card camera">
+        <div class="card-head">
+          <h2>カメラ</h2>
+          <div class="seg" id="camSel">
+            <button data-cam="overview" class="on">俯瞰</button>
+            <button data-cam="head">頭</button>
+            <button data-cam="right_wrist">右手首</button>
+            <button data-cam="left_wrist">左手首</button>
+            <button data-cam="off">OFF</button>
+          </div>
+        </div>
+        <div class="cam-box">
+          <img id="camImg" alt="camera">
+          <div class="cam-msg" id="camMsg">映像待ち…</div>
+        </div>
+      </div>
+
+      <div class="card map" id="mapCard">
+        <div class="card-head">
+          <h2>上から見た図</h2>
+          <span class="hint">物体をタップして選択</span>
+        </div>
+        <canvas id="map"></canvas>
+        <div class="pose" id="poseText">x — / y — / θ —</div>
+      </div>
+
+    <section class="pane controls">
+      <nav class="tabs" id="tabs">
+        <button data-tab="demo" class="on">デモ</button>
+        <button data-tab="drive">走行</button>
+        <button data-tab="arm">アーム</button>
+        <button data-tab="body">胴・頭</button>
+      </nav>
+
+      <!-- ===================== demo ===================== -->
+      <div class="card tab on" id="tab-demo">
+        <h3>対象の物体</h3>
+        <div class="chips" id="objChips"><span class="muted">シーン情報を待っています…</span></div>
+        <h3>使う腕</h3>
+        <div class="seg wide" id="demoArm">
+          <button data-arm="auto" class="on">自動</button>
+          <button data-arm="right">右</button>
+          <button data-arm="left">左</button>
+        </div>
+        <div class="actions">
+          <button class="primary big" data-task="demo">▶ 全自動デモ<small>移動 → 掴む → トレイに置く → 戻る</small></button>
+          <button data-task="approach">① テーブルへ移動</button>
+          <button data-task="pick">② 掴んで持ち上げる</button>
+          <button data-task="place" data-target="tray">③ トレイに置く</button>
+          <button data-task="place" data-target="origin">元の場所に置く</button>
+          <button data-task="home">スタート位置へ戻る</button>
+          <button class="ghost" data-task="reset_scene">シーンをリセット</button>
+        </div>
+        <div class="taskline" id="taskLine">—</div>
+      </div>
+
+      <!-- ===================== drive ===================== -->
+      <div class="card tab" id="tab-drive">
+        <div class="drive">
+          <div class="joy" id="joy"><div class="joy-ring"></div><div class="knob" id="knob"></div>
+            <span class="joy-label up">前</span><span class="joy-label down">後</span>
+            <span class="joy-label left">左</span><span class="joy-label right">右</span>
+          </div>
+          <div class="rotate">
+            <button class="hold" id="rotL">⟲<small>左旋回</small></button>
+            <button class="hold" id="rotR">⟳<small>右旋回</small></button>
+          </div>
+        </div>
+        <label class="slider">速度 <span id="speedVal">0.30 m/s</span>
+          <input type="range" id="speed" min="0.05" max="0.6" step="0.05" value="0.3">
+        </label>
+        <p class="muted">全方向移動 (オムニ) です。キーボード: W/S 前後・A/D 左右・Q/E 旋回</p>
+        <div class="readout" id="driveReadout">vx 0.00 / vy 0.00 / ω 0.00</div>
+      </div>
+
+      <!-- ===================== arm ===================== -->
+      <div class="card tab" id="tab-arm">
+        <div class="row">
+          <div class="seg" id="armSel">
+            <button data-arm="right" class="on">右腕</button>
+            <button data-arm="left">左腕</button>
+          </div>
+          <div class="grip">
+            <button id="gripOpen">開く</button>
+            <button id="gripClose" class="primary">閉じる/掴む</button>
+          </div>
+        </div>
+        <div class="holding" id="holding">何も持っていません</div>
+
+        <h3>手先を動かす <span class="muted">(ロボット基準・押し続けで連続)</span></h3>
+        <div class="jog">
+          <button class="hold" data-jog="0,0,1,0">上 ↑</button>
+          <button class="hold" data-jog="1,0,0,0">前 ▲</button>
+          <button class="hold" data-jog="0,0,0,1">⟲</button>
+          <button class="hold" data-jog="0,1,0,0">左 ◀</button>
+          <button class="hold" data-jog="-1,0,0,0">後 ▼</button>
+          <button class="hold" data-jog="0,-1,0,0">右 ▶</button>
+          <button class="hold" data-jog="0,0,-1,0">下 ↓</button>
+          <div class="seg step" id="jogStep">
+            <button data-step="0.01">1cm</button>
+            <button data-step="0.02" class="on">2cm</button>
+            <button data-step="0.05">5cm</button>
+          </div>
+          <button class="hold" data-jog="0,0,0,-1">⟳</button>
+        </div>
+
+        <h3>関節</h3>
+        <div id="armJoints" class="sliders"></div>
+        <div class="presets">
+          <button data-pose="ready">準備姿勢</button>
+          <button data-pose="ready_high">高い準備姿勢</button>
+          <button data-pose="zero">ゼロ姿勢</button>
+        </div>
+      </div>
+
+      <!-- ===================== body ===================== -->
+      <div class="card tab" id="tab-body">
+        <h3>胴 (リフト)</h3>
+        <div id="torsoJoints" class="sliders"></div>
+        <h3>頭</h3>
+        <div id="headJoints" class="sliders"></div>
+        <div class="presets">
+          <button data-head="0,-0.45">テーブルを見る</button>
+          <button data-head="0,0">正面</button>
+          <button data-pose="ready">準備姿勢</button>
+        </div>
+      </div>
+
+      <div class="card log">
+        <div class="card-head"><h2>ログ</h2></div>
+        <pre id="log"></pre>
+      </div>
+    </section>
+  </main>
+
+  <script src="config.js"></script>
+  <script src="rosbridge.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>

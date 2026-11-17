@@ -1,0 +1,58 @@
+# Demo scene: a table with a few objects and a tray in front of Galbot S1.
+#
+# Single source of truth for
+#   * the Isaac Sim stage (galbot_s1_isaac/isaac/galbot_isaac/usd_scene.py builds it at start-up)
+#   * the commander node (object sizes for grasping, table / tray positions)
+# Same file as galbot_s1_gazebo/config/scene.yaml in mamoru1126/galbot_s1_gazebo.
+#
+# Units: m, rad. World frame: x forward from the robot start pose, z up.
+
+world_name: galbot_table_world
+
+robot:
+  name: galbot_s1
+  spawn: [0.0, 0.0, 0.0]          # x, y, yaw
+
+table:
+  name: table
+  center: [1.60, 0.0]             # x, y
+  size: [0.60, 1.20, 0.75]        # depth (x), width (y), height of the top surface
+  top_thickness: 0.04
+
+overview_camera:                  # fixed camera watching robot + table (web UI "俯瞰")
+  pose: [-1.2, -2.2, 2.3, 0.0, 0.50, 0.858]   # x y z roll pitch yaw (looks at ~(0.7, 0, 0.7))
+  width: 640
+  height: 480
+  hfov: 1.1
+
+tray:                             # place target (static, very thin)
+  name: tray
+  center: [1.45, 0.10]
+  size: [0.16, 0.16, 0.008]
+  color: [0.15, 0.15, 0.18]
+
+objects:
+  - name: red_can
+    label: "赤い缶"
+    shape: cylinder
+    radius: 0.033
+    length: 0.12
+    mass: 0.15
+    color: [0.85, 0.08, 0.08]
+    position: [1.45, -0.35]
+  - name: green_bottle
+    label: "緑のボトル"
+    shape: cylinder
+    radius: 0.028
+    length: 0.16
+    mass: 0.15
+    color: [0.10, 0.65, 0.25]
+    position: [1.45, -0.13]
+  - name: blue_box
+    label: "青い箱"
+    shape: box
+    size: [0.05, 0.05, 0.10]
+    mass: 0.15
+    color: [0.10, 0.30, 0.85]
+    position: [1.45, 0.35]
+    yaw: 0.0

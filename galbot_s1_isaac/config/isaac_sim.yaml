@@ -1,0 +1,53 @@
+# Isaac Sim settings for the Galbot S1 table demo (galbot_s1_isaac/isaac/run_sim.py).
+# The scene itself (table, tray, objects, overview camera) is in scene.yaml.
+#
+# Units: SI. Gains are per radian (revolute) / per metre (prismatic).
+
+physics:
+  dt: 0.008333333          # 120 Hz physics
+  device: cpu              # cpu | cuda:0  (one robot: the CPU solver is fast and robust)
+  solver: TGS
+  position_iterations: 32  # articulation solver iterations
+  velocity_iterations: 1
+
+realtime_factor: 1.0       # 1.0 = wall-clock pace, 0 = as fast as possible
+
+robot:
+  prim_path: /World/galbot_s1
+  # Imported USD is cached here (key = hash of the URDF + import settings).
+  # Default: $XDG_CACHE_HOME/galbot_s1_isaac or ~/.cache/galbot_s1_isaac
+  usd_cache_dir: ""
+  disable_gravity: true    # links without gravity = ideal gravity compensation (like the real robot)
+  # How a grasped object follows the gripper:
+  #   follow : the object is placed on the gripper pose every physics step (robust, default)
+  #   joint  : a PhysX fixed joint is created between gripper link and object at run time
+  attach_mode: follow
+  # Joint drives, applied in order (later entries override earlier ones).
+  #   mode: position | velocity ; max_effort: N or Nm (optional)
+  drives:
+    - {pattern: ".*", mode: position, stiffness: 2000.0, damping: 100.0}
+    - {pattern: "^base_(x|y)_joint$", mode: position, stiffness: 200000.0, damping: 20000.0, max_effort: 100000.0}
+    - {pattern: "^base_yaw_joint$", mode: position, stiffness: 20000.0, damping: 2000.0, max_effort: 100000.0}
+    - {pattern: "^torso_lift_joint1$", mode: position, stiffness: 100000.0, damping: 10000.0, max_effort: 10000.0}
+    - {pattern: "^head_joint", mode: position, stiffness: 500.0, damping: 50.0}
+    - {pattern: "_arm_joint[1-4]$", mode: position, stiffness: 3000.0, damping: 150.0, max_effort: 500.0}
+    - {pattern: "_arm_joint[5-7]$", mode: position, stiffness: 1000.0, damping: 50.0, max_effort: 200.0}
+    - {pattern: "_(active_joint[12]|passive_joint)$", mode: position, stiffness: 200.0, damping: 10.0, max_effort: 20.0}
+    - {pattern: "^wheel_steering_joint", mode: position, stiffness: 500.0, damping: 20.0}
+    - {pattern: "^wheel_driving_joint", mode: velocity, stiffness: 0.0, damping: 50.0}
+
+cameras:
+  enabled: true
+  # robot cameras: frame from galbot_s1_description/urdf/galbot_s1_sensors.xacro (x forward)
+  robot:
+    head_camera:        {link: head_camera_link, width: 640, height: 480, hfov: 1.2, rate: 15}
+    right_wrist_camera: {link: right_wrist_camera_link, width: 424, height: 240, hfov: 1.5, rate: 10}
+    left_wrist_camera:  {link: left_wrist_camera_link, width: 424, height: 240, hfov: 1.5, rate: 10}
+  overview_rate: 10        # pose / size / hfov of overview_camera come from scene.yaml
+  near: 0.03
+  far: 20.0
+
+publish:
+  joint_states_rate: 60
+  odom_rate: 50
+  objects_rate: 20

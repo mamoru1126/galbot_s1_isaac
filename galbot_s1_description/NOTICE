@@ -1,0 +1,9 @@
+The robot model (kinematics, inertias, meshes and textures) in this package is
+derived from GalaxyGeneralRobotics/galbot_s1_description
+(https://github.com/GalaxyGeneralRobotics/galbot_s1_description),
+licensed under the Apache License 2.0 (see LICENSE.upstream).
+
+Modifications: glTF visual meshes converted to COLLADA, textures down-scaled to
+2048 px, URDF converted to a xacro macro with a base_footprint link, sphere wheel
+collisions, optional mimic joints, camera frames and simulation limit overrides
+(see tools/import_upstream.py and the header of urdf/galbot_s1_body.xacro).

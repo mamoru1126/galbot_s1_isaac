@@ -1,0 +1,19 @@
+<?xml version="1.0"?>
+<!--
+  Galbot S1 (robot only, no simulation plugins). For simulation use
+  galbot_s1_gazebo/urdf/galbot_s1_sim.urdf.xacro.
+
+  xacro args
+    use_mimic : keep the gripper mimic joints (true for RViz / joint_state_publisher)
+    mesh_uri  : prefix of the mesh files (default: absolute file:// path)
+-->
+<robot name="galbot_s1" xmlns:xacro="http://www.ros.org/wiki/xacro">
+  <xacro:arg name="use_mimic" default="true"/>
+  <xacro:arg name="mesh_uri" default="file://$(find galbot_s1_description)/meshes"/>
+
+  <xacro:include filename="$(find galbot_s1_description)/urdf/galbot_s1_body.xacro"/>
+  <xacro:include filename="$(find galbot_s1_description)/urdf/galbot_s1_sensors.xacro"/>
+
+  <xacro:galbot_s1_body mesh_uri="$(arg mesh_uri)" use_mimic="$(arg use_mimic)"/>
+  <xacro:galbot_s1_sensors/>
+</robot>
