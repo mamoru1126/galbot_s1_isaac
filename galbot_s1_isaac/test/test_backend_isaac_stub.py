@@ -404,10 +404,11 @@ def test_with_sim_core(backend, settings):
     from test_sim_core import FakeRos
     ros = FakeRos()
     core = SimCore(backend, ros, dict(settings, realtime_factor=0), 'galbot_s1', rc, log=lambda *_: None)
+    t0 = backend.sim_time()
     ros.command('torso_controller', [0.5])
     ros.request('attach', 'galbot_s1 right_arm_link7 red_can')
     for _ in range(30):
         core.step()
     assert ros.out['joints'][-1]['torso_lift_joint1'] == pytest.approx(0.5)
     assert ros.out['attached'][-1] == {'red_can': 'right_arm_link7'}
-    assert ros.out['img_head_camera'] and ros.out['clock'][-1] == pytest.approx(0.5)
+    assert ros.out['img_head_camera'] and ros.out['clock'][-1] - t0 == pytest.approx(0.5)
