@@ -46,7 +46,7 @@ def test_objects(stage, scene):
     for o in scene.objects:
         prim = stage.GetPrimAtPath(stage.paths[o.name])
         assert prim.HasAPI(UsdPhysics.RigidBodyAPI)
-        assert abs(UsdPhysics.MassAPI(prim).GetMassAttr().Get() - o.mass) < 1e-9
+        assert abs(UsdPhysics.MassAPI(prim).GetMassAttr().Get() - o.mass) < 1e-6   # float attribute
         geom = prim.GetChild('geom')
         assert geom.HasAPI(UsdPhysics.CollisionAPI)
         T = world_matrix(prim)

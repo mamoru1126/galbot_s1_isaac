@@ -3,5 +3,10 @@
 set -eu
 SRC="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 python3 "$SRC/galbot_s1_isaac/tools/generate_urdf.py" --check
-cd "$SRC"
-python3 -m pytest -q -p no:cacheprovider galbot_s1_control/test galbot_s1_isaac/test
+python3 -m pytest --version
+# one directory at a time (each has its own conftest.py)
+for pkg in galbot_s1_control galbot_s1_isaac; do
+  echo "==== $pkg"
+  cd "$SRC/$pkg"
+  python3 -m pytest -v -rs -p no:cacheprovider test
+done
