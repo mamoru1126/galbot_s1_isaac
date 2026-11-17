@@ -237,7 +237,8 @@ class SimCore(object):
         t0_wall = time.time()
         self.stats_sim = t0_sim
         self.ros.publish_attached(self.attached)
-        while self.backend.is_running():
+        ros_ok = getattr(self.ros, 'ok', lambda: True)
+        while self.backend.is_running() and ros_ok():
             t = self.step()
             self._stats(t)
             if max_sim_time is not None and t - t0_sim >= max_sim_time:

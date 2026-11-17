@@ -109,6 +109,10 @@ class RosIO(object):
             self.requests.clear()
             return dict(self.commands), dict(self.cmd_seq), self.base_cmd, self.base_seq, reqs
 
+    def ok(self):
+        """False after Ctrl-C / SIGTERM (rclpy shuts its context down on those signals)."""
+        return rclpy.ok()
+
     def info(self, text):
         self.node.get_logger().info(text)
 

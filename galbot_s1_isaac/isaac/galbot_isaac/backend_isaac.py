@@ -192,8 +192,12 @@ class IsaacBackend(object):
         for name, cam in self.cams.items():
             w, h = self.cam_specs[name][:2]
             rp = rep.create.render_product(cam['path'], (w, h))
+            # no hydra texture updates while the annotator graph is being built (same as
+            # isaacsim.replicator.experimental.mobility_gen), then on again
+            self._set_updates(rp, False)
             annot = rep.AnnotatorRegistry.get_annotator('rgb')
-            annot.attach([rp])
+            annot.attach(rp)
+            self._set_updates(rp, True)
             cam['rp'], cam['annot'] = rp, annot
             if cam['follow']:
                 self._link_rigid(cam['follow'][0])
@@ -455,25 +459,33 @@ class IsaacBackend(object):
     def camera_specs(self):
         return {n: s for n, s in self.cam_specs.items() if n in self.cams}
 
+    def _set_updates(self, rp, enabled):
+        try:
+            rp.hydra_texture.set_updates_enabled(bool(enabled))
+        except Exception as exc:
+            self._cb_error('render product updates', exc)
+
     def set_camera_active(self, name, active):
         cam = self.cams.get(name)
-        if not cam:
-            return
-        try:
-            cam['rp'].hydra_texture.set_updates_enabled(bool(active))
-        except Exception as exc:
-            self._cb_error('render product %s' % name, exc)
+        if cam and 'rp' in cam:
+            self._set_updates(cam['rp'], active)
 
     def camera_image(self, name):
         cam = self.cams.get(name)
-        if not cam:
+        if not cam or 'annot' not in cam:
             return None
-        data = cam['annot'].get_data()
+        # the annotator returns a view into a buffer reused by the next frame -> copy
+        data = cam['annot'].get_data(do_array_copy=True)
         if isinstance(data, dict):
             data = data.get('data')
         if data is None:
             return None
         arr = self._np(data)
-        if arr.ndim != 3 or arr.size == 0:
+        if arr.size == 0:
             return None
-        return np.ascontiguousarray(arr[:, :, :3]).astype(np.uint8, copy=False)
+        if arr.ndim == 1:      # flat (H*W*4,) buffer on some builds
+            w, h = self.cam_specs[name][:2]
+            arr = arr.reshape(h, w, -1)
+        if arr.ndim != 3 or arr.shape[2] < 3:
+            return None
+        return np.ascontiguousarray(arr[:, :, :3], dtype=np.uint8)

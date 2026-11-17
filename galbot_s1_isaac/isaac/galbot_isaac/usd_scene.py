@@ -16,7 +16,7 @@ except ImportError:  # pragma: no cover
 
 WORLD = '/World'
 LOOKS = '/World/Looks'
-PHYSICS_SCENE = '/physicsScene'
+PHYSICS_SCENE = '/PhysicsScene'   # same path SimulationManager uses for its default scene
 OBJECTS = '/World/objects'
 
 
