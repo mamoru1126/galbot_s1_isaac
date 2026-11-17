@@ -12,6 +12,7 @@ Gazebo 版 [mamoru1126/galbot_s1_gazebo](https://github.com/mamoru1126/galbot_s1
 > | Isaac Sim 6.2.0 のソースと API 名・引数を照合 (URDF インポータ、Articulation / RigidPrim、SimulationManager、Replicator) | Isaac Sim 上での起動、URDF→USD 変換結果 |
 > | CI: Isaac 用の代替バックエンド (kinematic) で ROS 2 スタック全体の E2E (走行・ジョグ・グリッパ・赤い缶のデモ・左腕で箱の把持と戻し・リセット) | PhysX の挙動 (ゲイン、把持中の追従) |
 > | CI: USD シーン生成 (テーブル・物体・カメラの向き) を usd-core で検査 | RTX カメラ画像、RTX 3090 での速度 |
+> | CI: Isaac バックエンドのコード全経路を、Isaac Sim モジュールの代役 (スタブ) + 本物の USD で実行 | |
 >
 > RTX 3090 のマシンで [`./scripts/self_test.sh`](#自己テスト-rtx-マシンで) を実行し、出力フォルダ (`selftest/…`) のログを共有してもらえれば、それを見て調整します。
 
@@ -209,7 +210,7 @@ GitHub Actions には RTX GPU が無いため、Isaac Sim 自体は動かせま�
 
 - `ci/unit_tests.sh` : コミット済み URDF が xacro と一致しているか + pytest (運動学・Isaac 用 URDF・ゲイン設定・シミュレーションループ)
 - `ci/run_sim_test.sh` : kinematic バックエンドで ROS 2 スタック全体の E2E (`ci/sim_test_client.py`)
-- usd-core で USD シーン生成のテスト (`galbot_s1_isaac/test/test_usd_scene.py`)
+- usd-core で USD シーン生成のテスト (`galbot_s1_isaac/test/test_usd_scene.py`) と、Isaac Sim のモジュールを代役に置き換えて Isaac バックエンドの全コード経路を通すテスト (`test_backend_isaac_stub.py`)
 
 を実行しています。kinematic バックエンドは Isaac Sim バックエンドと同じシミュレーションループ (`isaac/galbot_isaac/sim_core.py`) とトピックを使います。
 
